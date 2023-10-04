@@ -78,3 +78,20 @@ def add_project(name, username):
         print(f'[green]Project "{name}" added for user "{username}".[/green]')
     else:
         print(f'[red]User "{username}" not found.[/red]')
+
+@cli.command()
+@click.option('--title', prompt='Task title', help='Title of the task')
+@click.option('--description', prompt='Task description', help='Description of the task')
+@click.option('--project-name', prompt='Project name', help='Name of the project')
+def add_task(title, description, project_name):
+    project = session.query(Project).filter_by(name=project_name).first()
+    if project:
+        task = Task(title=title, description=description, project=project)
+        session.add(task)
+        session.commit()
+        print(f'[green]Task "{title}" added to project "{project_name}".[/green]')
+    else:
+        print(f'[red]Project "{project_name}" not found.[/red]')
+
+if __name__ == '__main__':
+    cli()
