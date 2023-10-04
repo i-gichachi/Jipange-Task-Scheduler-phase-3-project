@@ -65,3 +65,16 @@ def add_user(username):
     session.add(user)
     session.commit()
     print(f'[green]User "{username}" added.[/green]')
+
+@cli.command()
+@click.option('--name', prompt='Project name', help='Name of the project')
+@click.option('--username', prompt='Username', help='Username of the user')
+def add_project(name, username):
+    user = session.query(User).filter_by(username=username).first()
+    if user:
+        project = Project(name=name, user=user)
+        session.add(project)
+        session.commit()
+        print(f'[green]Project "{name}" added for user "{username}".[/green]')
+    else:
+        print(f'[red]User "{username}" not found.[/red]')
