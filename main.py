@@ -57,3 +57,11 @@ Base.metadata.create_all(engine)
 @click.group()
 def cli():
     pass
+
+@cli.command()
+@click.option('--username', prompt='Username', help='Username of the user')
+def add_user(username):
+    user = User(username=username)
+    session.add(user)
+    session.commit()
+    print(f'[green]User "{username}" added.[/green]')
