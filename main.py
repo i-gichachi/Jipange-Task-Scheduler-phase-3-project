@@ -1,5 +1,5 @@
 import click
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
@@ -17,14 +17,25 @@ Session = sessionmaker(bind=engine)
 #Creates a session object for database operations
 session = Session()
 
+# Define the association table for the many-to-many relationship between users and projects
+user_project_association = Table(
+    'user_project_association',  # Table name
+    Base.metadata,  # Metadata object associated with the Base class
+    Column('user_id', Integer, ForeignKey('users.id')),  # Foreign key to link users
+    Column('project_id', Integer, ForeignKey('projects.id'))  # Foreign key to link projects
+)
+
 #Defines the User class as an SQLAlchemy model
 class User(Base):
     __tablename__ = 'users' #Table name in the database
     id = Column(Integer, primary_key=True) #Primary key for the User table
     username = Column(String, unique=True) #Unique username for each User
 
-    #Defines the one-to-many relationship between User and Project
-    projects = relationship("Project", back_populates="user")
+    projects = relationship(
+        "Project",  #Relationship with Project class
+        secondary=user_project_association,  #Uses the user_project_association table
+        back_populates="users"  #Defines the reverse relationship in the Project class
+    )
 
 #Defines the Project class as an SQLAlchemy model
 class Project(Base):
@@ -32,11 +43,11 @@ class Project(Base):
     id = Column(Integer, primary_key=True) #Primary key for Project
     name = Column(String) #Name of the project
 
-    #Defines the foreign key to associate each project with a user
-    user_id = Column(Integer, ForeignKey('users.id'))
-
-    #Defines the many-to-one relationship between Project and User
-    user = relationship("User", back_populates="projects")
+    users = relationship(
+        "User",  #Relationship with User class
+        secondary=user_project_association,  #Uses the user_project_association table
+        back_populates="projects"  #Defines the reverse relationship in the User class
+    )
 
     #Defines the one-to-many relationship between Project and Task
     tasks = relationship("Task", back_populates="project")
