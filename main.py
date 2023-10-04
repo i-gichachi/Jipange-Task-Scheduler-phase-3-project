@@ -34,3 +34,26 @@ class Task(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     project_id = Column(Integer, ForeignKey('projects.id'))
     project = relationship("Project", back_populates="tasks")
+
+class Stack:
+    def __init__(self):
+        self.items = []
+
+    def push(self, item):
+        self.items.append(item)
+
+    def pop(self):
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            return None
+
+    def is_empty(self):
+        return len(self.items) == 0
+
+
+Base.metadata.create_all(engine)
+
+@click.group()
+def cli():
+    pass
